@@ -6,15 +6,15 @@ Korean Vision Document Retrieval (KoVidore) benchmark for evaluating text-to-ima
 
 KoVidore is a comprehensive benchmark based on the MTEB framework that evaluates models' ability to retrieve relevant visual documents (screenshots, slides, office documents) based on Korean text queries. The benchmark consists of 5 different tasks across various document types.
 
-## Tasks
+## Tasks & Examples
 
-| Task | Description | Documents | Queries | Main Metric |
-|------|-------------|-----------|---------|-------------|
-| **MIR** | Multimodal Information Retrieval | 1,366 | 1,496 | NDCG@5 |
-| **VQA** | Visual Question Answering | 1,101 | 1,500 | NDCG@5 |
-| **Slide** | Presentation Slides | 1,415 | 180 | NDCG@5 |
-| **Office** | Office Documents | 1,993 | 222 | NDCG@5 |
-| **FinOCR** | Financial OCR Documents | 2,000 | 187 | NDCG@5 |
+| Task | Description | Documents | Queries | Example Query | Sample Image |
+|------|-------------|-----------|---------|---------------|--------------|
+| **MIR** | Multimodal Information Retrieval | 1,366 | 1,496 | 코로나19 동절기 집중접종기간 운영개요 혼합형에 대해 알려주세요 | <img src="assets/examples/mir_sample.jpg" width="200" alt="MIR"> |
+| **VQA** | Visual Question Answering | 1,101 | 1,500 | 3월의 물량 증감률은 몇 퍼센트인가요? | <img src="assets/examples/vqa_sample.png" width="200" alt="VQA"> |
+| **Slide** | Presentation Slides | 1,415 | 180 | 나무가 주거 공간에서 제공하는 역할은 무엇인가? | <img src="assets/examples/slide_sample.jpg" width="200" alt="Slide"> |
+| **Office** | Office Documents | 1,993 | 222 | 관세평가분류원 HIT팀 결성 목적은 무엇인가? | <img src="assets/examples/office_sample.jpg" width="200" alt="Office"> |
+| **FinOCR** | Financial OCR Documents | 2,000 | 187 | 예금보험공사채 78 변경등록신청서에서 변경후 성명 장인성과 주민(사업자)등록번호 324592-9480032가 기재된 문서 | <img src="assets/examples/finocr_sample.png" width="200" alt="FinOCR"> |
 
 ## Installation
 
@@ -63,16 +63,6 @@ model = SentenceTransformer("your-model-name")
 evaluation = MTEB(tasks=[KoVidoreMIRRetrieval()])
 results = evaluation.run(model)
 ```
-
-## Available Task Keys
-
-When running specific tasks, use these keys:
-
-- `mir`: Multimodal Information Retrieval
-- `vqa`: Visual Question Answering  
-- `slide`: Presentation Slides
-- `office`: Office Documents
-- `finocr`: Financial OCR Documents
 
 ## Results
 
