@@ -69,18 +69,6 @@ evaluation = run_benchmark("your-model-name")
 evaluation = run_benchmark("your-model-name", tasks=["mir", "vqa"])
 ```
 
-### Individual task evaluation:
-
-```python
-from mteb import MTEB
-from src.evaluate import KoVidoreMIRRetrieval
-from sentence_transformers import SentenceTransformer
-
-model = SentenceTransformer("your-model-name")
-evaluation = MTEB(tasks=[KoVidoreMIRRetrieval()])
-results = evaluation.run(model)
-```
-
 ## Results
 
 Results are automatically saved in the `results/` directory after evaluation completion. The benchmark uses NDCG@5 as the main evaluation metric for all tasks.
