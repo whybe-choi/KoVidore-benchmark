@@ -1,0 +1,23 @@
+[project]
+name = "kovidore-benchmark"
+version = "0.1.0"
+description = "Korean Vision Document Retrieval Benchmark"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "mteb>=1.38.54",
+    "torchvision>=0.23.0",
+    "peft>=0.17.1",
+    "einops>=0.8.1",
+    "sentencepiece>=0.2.1",
+    "protobuf>=6.32.0",
+    "colpali-engine>=0.3.7",
+    "open-clip-torch>=3.1.0",
+    "datasets>=3.6.0",
+    "sentence-transformers>=5.1.0",
+    "pandas>=2.0.0",
+    "pillow>=10.0.0",
+]
+
+[project.scripts]
+kovidore = "main:main"
