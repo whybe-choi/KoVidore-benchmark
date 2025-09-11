@@ -21,17 +21,30 @@ def _load_local_data(subset_name: str, splits: List[str] = ["test"]) -> Tuple[Di
     ├── queries.csv
     ├── qrels.csv
     └── images/
-        ├── {corpus_id}.jpg
+        ├── {corpus_id}.jpg or {corpus_id}.png
         └── ...
     """
     corpus: Dict[str, Dict[str, Dict[str, Any]]] = {}
     queries: Dict[str, Dict[str, str]] = {}
     relevant_docs: Dict[str, Dict[str, Dict[str, int]]] = {}
     
+    # Auto-detect image extension from the first available image
+    def detect_image_extension(images_dir: Path) -> str:
+        """Detect the image extension used in this dataset"""
+        for ext in [".jpg", ".jpeg", ".png"]:
+            if any(f.suffix.lower() == ext for f in images_dir.glob("*")):
+                return ext
+        return ".jpg"  # fallback
+    
     data_dir = Path(f"data/{subset_name}")
     
     if not data_dir.exists():
         raise FileNotFoundError(f"Data directory not found: {data_dir}")
+    
+    # Auto-detect image extension for this subset
+    images_dir = data_dir / "images"
+    image_ext = detect_image_extension(images_dir) if images_dir.exists() else ".jpg"
+    logger.info(f"Using image extension '{image_ext}' for {subset_name}")
     
     for split in splits:
         corpus[split] = {}
@@ -58,7 +71,7 @@ def _load_local_data(subset_name: str, splits: List[str] = ["test"]) -> Tuple[Di
                 
                 # Add to corpus if not exists
                 if corpus_id not in corpus[split]:
-                    image_path = data_dir / "images" / f"{corpus_id}.jpg"
+                    image_path = images_dir / f"{corpus_id}{image_ext}"
                     if image_path.exists():
                         try:
                             image = Image.open(image_path)

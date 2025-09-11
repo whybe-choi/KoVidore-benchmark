@@ -70,7 +70,7 @@ def setup_dataset(subset_name: str, config: dict):
     corpus_dataset = load_dataset(
         config["path"], 
         "corpus",
-        split="corpus",
+        split="test",
         revision=config["revision"]
     )
     
@@ -78,8 +78,8 @@ def setup_dataset(subset_name: str, config: dict):
     queries_data = []
     for item in queries_dataset:
         queries_data.append({
-            "query-id": item["_id"],
-            "text": item["text"]
+            "query-id": item.get("query-id", item.get("_id")),
+            "text": item.get("text", item.get("query"))
         })
     
     # Prepare qrels data
@@ -95,15 +95,23 @@ def setup_dataset(subset_name: str, config: dict):
             "score": score
         })
     
+    # Determine image format based on dataset
+    if subset_name in ["vqa", "finocr"]:
+        image_ext = ".png"
+        image_format = "PNG"
+    else:
+        image_ext = ".jpg"
+        image_format = "JPEG"
+    
     # Save actual images from corpus
     for item in corpus_dataset:
-        corpus_id = item["_id"]
-        image_path = images_dir / f"{corpus_id}.jpg"
+        corpus_id = item.get("corpus-id", item.get("_id"))
+        image_path = images_dir / f"{corpus_id}{image_ext}"
         if not image_path.exists() and "image" in item and item["image"] is not None:
             try:
                 # Save the actual image
-                item["image"].save(image_path, format="JPEG")
-                logger.debug(f"Saved image {corpus_id}.jpg")
+                item["image"].save(image_path, format=image_format)
+                logger.debug(f"Saved image {corpus_id}{image_ext}")
             except Exception as e:
                 logger.warning(f"Failed to save image {corpus_id}: {e}")
                 # Create empty placeholder if image save fails
