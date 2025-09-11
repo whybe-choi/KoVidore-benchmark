@@ -401,7 +401,7 @@ def run_benchmark(
         MTEB evaluation object or None if failed
     """
     try:
-        from sentence_transformers import SentenceTransformer
+        import mteb
         
         if tasks is None:
             tasks = ALL_TASKS
@@ -413,14 +413,15 @@ def run_benchmark(
             logger.info(f"Available tasks: {list(AVAILABLE_TASKS.keys())}")
             return None
         
-        model = SentenceTransformer(model_name)
+        # Use mteb.get_model() for standardized model loading
+        model = mteb.get_model(model_name)
         selected_tasks = [AVAILABLE_TASKS[task]() for task in tasks]
         
         logger.info(f"Starting evaluation with model: {model_name}")
         logger.info(f"Running tasks: {tasks}")
         
-        evaluation = MTEB(tasks=selected_tasks)
-        evaluation.run(model)
+        evaluation = mteb.MTEB(tasks=selected_tasks)
+        results = evaluation.run(model, output_folder=f"results/{model_name}")
         
         logger.info("Evaluation completed successfully")
         return evaluation
