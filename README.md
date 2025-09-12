@@ -74,6 +74,27 @@ evaluation = run_benchmark("your-model-name")
 evaluation = run_benchmark("your-model-name", tasks=["mir", "vqa"])
 ```
 
+## Datasets
+
+We provide pre-processed queries and query-corpus mappings for each task. However, due to licensing restrictions, you'll need to download the image datasets manually from AI Hub (see Acknowledgements section for dataset links).
+
+**Setup Instructions:**
+1. Download the required datasets from AI Hub
+2. Extract and place images in the following directory structure:
+    ```
+    data/
+    ├── mir/images/
+    ├── vqa/images/
+    ├── slide/images/
+    ├── office/images/
+    └── finocr/images/
+    ```
+
+The benchmark will automatically locate and use the images from these directories during evaluation.
+
+```
+
+
 ## Results
 
 Results are automatically saved in the `results/` directory after evaluation completion. The benchmark uses NDCG@5 as the main evaluation metric for all tasks.
