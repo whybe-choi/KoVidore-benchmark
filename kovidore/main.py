@@ -7,7 +7,7 @@ This script demonstrates how to evaluate models on the KoVidore benchmark.
 
 import argparse
 import logging
-from src.evaluate import run_benchmark, ALL_TASKS
+from .evaluate import run_benchmark, ALL_TASKS
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)

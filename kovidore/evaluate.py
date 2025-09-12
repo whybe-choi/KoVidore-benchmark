@@ -5,92 +5,93 @@ import pandas as pd
 from PIL import Image
 
 from mteb import MTEB
-from mteb.abstasks.AbsTaskAny2AnyRetrieval import AbsTaskAny2AnyRetrieval
+from mteb.abstasks import AbsTaskAny2AnyRetrieval
 from mteb.abstasks.TaskMetadata import TaskMetadata
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 
-def _load_local_data(subset_name: str, splits: List[str] = ["test"]) -> Tuple[Dict[str, Dict[str, Dict[str, Any]]], Dict[str, Dict[str, str]], Dict[str, Dict[str, Dict[str, int]]]]:
+def _load_local_data(subset_name: str, splits: List[str] = ["test"]):
     """
-    Load data from local directory structure.
+    Load data from local directory structure in MTEB format.
     
     Expected structure:
     data/{subset_name}/
     ├── queries.csv
     ├── qrels.csv
+    ├── corpus.csv
     └── images/
         ├── {corpus_id}.jpg or {corpus_id}.png
         └── ...
     """
-    corpus: Dict[str, Dict[str, Dict[str, Any]]] = {}
-    queries: Dict[str, Dict[str, str]] = {}
-    relevant_docs: Dict[str, Dict[str, Dict[str, int]]] = {}
+    from datasets import Dataset
     
-    # Auto-detect image extension from the first available image
-    def detect_image_extension(images_dir: Path) -> str:
-        """Detect the image extension used in this dataset"""
-        for ext in [".jpg", ".jpeg", ".png"]:
-            if any(f.suffix.lower() == ext for f in images_dir.glob("*")):
-                return ext
-        return ".jpg"  # fallback
+    corpus = {}
+    queries = {}
+    relevant_docs = {}
     
     data_dir = Path(f"data/{subset_name}")
     
     if not data_dir.exists():
         raise FileNotFoundError(f"Data directory not found: {data_dir}")
     
-    # Auto-detect image extension for this subset
-    images_dir = data_dir / "images"
-    image_ext = detect_image_extension(images_dir) if images_dir.exists() else ".jpg"
-    logger.info(f"Using image extension '{image_ext}' for {subset_name}")
-    
     for split in splits:
-        corpus[split] = {}
-        queries[split] = {}
-        relevant_docs[split] = {}
-        
         # Load queries
         queries_file = data_dir / "queries.csv"
+        query_data = []
         if queries_file.exists():
             queries_df = pd.read_csv(queries_file)
             for _, row in queries_df.iterrows():
-                queries[split][str(row["query-id"])] = str(row["text"])
-        else:
-            logger.warning(f"queries.csv not found in {data_dir}")
+                query_data.append({
+                    "id": f"query-{split}-{row['query-id']}",
+                    "text": str(row["text"]),
+                    "image": None,
+                    "modality": "text"
+                })
+        queries[split] = Dataset.from_list(query_data)
         
-        # Load qrels
+        # Load corpus data
+        corpus_file = data_dir / "corpus.csv"
+        corpus_data = []
+        if corpus_file.exists():
+            corpus_df = pd.read_csv(corpus_file)
+            for _, row in corpus_df.iterrows():
+                corpus_id = str(row["corpus-id"])
+                image_path_str = row.get("image_path", "")
+                
+                # Load image if path exists
+                image = None
+                if image_path_str and Path(image_path_str).exists():
+                    try:
+                        image = Image.open(image_path_str)
+                    except Exception as e:
+                        logger.warning(f"Failed to load image {image_path_str}: {e}")
+                
+                corpus_data.append({
+                    "id": f"corpus-{split}-{corpus_id}",
+                    "text": None,
+                    "image": image,
+                    "modality": "image"
+                })
+        corpus[split] = Dataset.from_list(corpus_data)
+        
+        # Load qrels (relevance judgments)
         qrels_file = data_dir / "qrels.csv"
+        relevant_docs[split] = {}
         if qrels_file.exists():
             qrels_df = pd.read_csv(qrels_file)
             for _, row in qrels_df.iterrows():
-                query_id = str(row["query-id"])
-                corpus_id = str(row["corpus-id"])
+                query_id = f"query-{split}-{row['query-id']}"
+                corpus_id = f"corpus-{split}-{row['corpus-id']}"
                 score = int(row["score"])
-                
-                # Add to corpus if not exists
-                if corpus_id not in corpus[split]:
-                    image_path = images_dir / f"{corpus_id}{image_ext}"
-                    if image_path.exists():
-                        try:
-                            image = Image.open(image_path)
-                            corpus[split][corpus_id] = {"text": "", "image": image}
-                        except Exception as e:
-                            logger.warning(f"Failed to load image {image_path}: {e}")
-                            corpus[split][corpus_id] = {"text": "", "image": None}
-                    else:
-                        logger.warning(f"Image not found: {image_path}")
-                        corpus[split][corpus_id] = {"text": "", "image": None}
                 
                 # Add to relevant_docs
                 if query_id not in relevant_docs[split]:
                     relevant_docs[split][query_id] = {}
                 relevant_docs[split][query_id][corpus_id] = score
-        else:
-            logger.warning(f"qrels.csv not found in {data_dir}")
     
-    logger.info(f"Loaded {subset_name}: {len(queries['test'])} queries, {len(corpus['test'])} documents")
+    logger.info(f"Loaded {subset_name}: {len(query_data)} queries, {len(corpus_data)} documents")
     return corpus, queries, relevant_docs
 
 
@@ -116,14 +117,7 @@ class KoVidoreMIRRetrieval(AbsTaskAny2AnyRetrieval):
         dialect=[],
         modalities=["text", "image"],
         sample_creation="found",
-        bibtex_citation=r"""
-@article{mace2025vidorev2,
-  author = {Macé, Quentin and Loison António and Faysse, Manuel},
-  journal = {arXiv preprint arXiv:2505.17166},
-  title = {ViDoRe Benchmark V2: Raising the Bar for Visual Retrieval},
-  year = {2025},
-}
-""",
+
         prompt={"query": "Find a screenshot that relevant to the user's question."},
         descriptive_stats={
             "n_samples": None,
@@ -146,6 +140,17 @@ class KoVidoreMIRRetrieval(AbsTaskAny2AnyRetrieval):
             subset_name="mir",
             splits=self.metadata_dict["eval_splits"]
         )
+        
+        # Debug: Print data structure
+        logger.info(f"Corpus type: {type(self.corpus['test'])}")
+        logger.info(f"Corpus length: {len(self.corpus['test'])}")
+        if len(self.corpus['test']) > 0:
+            logger.info(f"Sample corpus entry: {self.corpus['test'][0]}")
+        
+        logger.info(f"Queries type: {type(self.queries['test'])}")
+        logger.info(f"Queries length: {len(self.queries['test'])}")
+        if len(self.queries['test']) > 0:
+            logger.info(f"Sample query: {self.queries['test'][0]}")
 
         self.data_loaded = True
 
@@ -172,14 +177,7 @@ class KoVidoreVQARetrieval(AbsTaskAny2AnyRetrieval):
         dialect=[],
         modalities=["text", "image"],
         sample_creation="found",
-        bibtex_citation=r"""
-@article{mace2025vidorev2,
-  author = {Macé, Quentin and Loison António and Faysse, Manuel},
-  journal = {arXiv preprint arXiv:2505.17166},
-  title = {ViDoRe Benchmark V2: Raising the Bar for Visual Retrieval},
-  year = {2025},
-}
-""",
+
         prompt={"query": "Find a screenshot that relevant to the user's question."},
         descriptive_stats={
             "n_samples": None,
@@ -228,14 +226,7 @@ class KoVidoreSlideRetrieval(AbsTaskAny2AnyRetrieval):
         dialect=[],
         modalities=["text", "image"],
         sample_creation="found",
-        bibtex_citation=r"""
-@article{mace2025vidorev2,
-  author = {Macé, Quentin and Loison António and Faysse, Manuel},
-  journal = {arXiv preprint arXiv:2505.17166},
-  title = {ViDoRe Benchmark V2: Raising the Bar for Visual Retrieval},
-  year = {2025},
-}
-""",
+
         prompt={"query": "Find a screenshot that relevant to the user's question."},
         descriptive_stats={
             "n_samples": None,
@@ -284,14 +275,7 @@ class KoVidoreOfficeRetrieval(AbsTaskAny2AnyRetrieval):
         dialect=[],
         modalities=["text", "image"],
         sample_creation="found",
-        bibtex_citation=r"""
-@article{mace2025vidorev2,
-  author = {Macé, Quentin and Loison António and Faysse, Manuel},
-  journal = {arXiv preprint arXiv:2505.17166},
-  title = {ViDoRe Benchmark V2: Raising the Bar for Visual Retrieval},
-  year = {2025},
-}
-""",
+
         prompt={"query": "Find a screenshot that relevant to the user's question."},
         descriptive_stats={
             "n_samples": None,
@@ -340,14 +324,7 @@ class KoVidoreFinOCRRetrieval(AbsTaskAny2AnyRetrieval):
         dialect=[],
         modalities=["text", "image"],
         sample_creation="found",
-        bibtex_citation=r"""
-@article{mace2025vidorev2,
-  author = {Macé, Quentin and Loison António and Faysse, Manuel},
-  journal = {arXiv preprint arXiv:2505.17166},
-  title = {ViDoRe Benchmark V2: Raising the Bar for Visual Retrieval},
-  year = {2025},
-}
-""",
+
         prompt={"query": "Find a screenshot that relevant to the user's question."},
         descriptive_stats={
             "n_samples": None,

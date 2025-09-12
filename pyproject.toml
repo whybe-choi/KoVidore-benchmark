@@ -3,11 +3,12 @@ name = "kovidore-benchmark"
 version = "0.1.0"
 description = "Korean Vision Document Retrieval Benchmark"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.12"
 dependencies = [
     "mteb>=1.38.54",
-    "torchvision>=0.23.0",
-    "peft>=0.17.1",
+    "torch>=2.5.0,<2.8.0",
+    "torchvision>=0.20.0",
+    "peft>=0.14.0,<0.17.0",
     "einops>=0.8.1",
     "sentencepiece>=0.2.1",
     "protobuf>=6.32.0",
@@ -19,5 +20,11 @@ dependencies = [
     "pillow>=10.0.0",
 ]
 
+[tool.setuptools]
+packages = ["kovidore"]
+
+[tool.uv.sources]
+colpali-engine = { git = "https://github.com/illuin-tech/colpali" }
+
 [project.scripts]
-kovidore = "main:main"
+kovidore = "kovidore.main:main"
