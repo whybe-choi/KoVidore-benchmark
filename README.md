@@ -4,7 +4,9 @@ Korean Vision Document Retrieval (KoVidore) benchmark for evaluating text-to-ima
 
 ## Overview
 
-KoVidore is a comprehensive benchmark based on the MTEB framework that evaluates models' ability to retrieve relevant visual documents (screenshots, slides, office documents) based on Korean text queries. The benchmark consists of 5 different tasks across various document types.
+KoVidore is a comprehensive benchmark for evaluating Korean visual document retrieval capabilities. Built upon the foundation of [ViDoRe](https://github.com/illuin-tech/vidore-benchmark), it assesses how well models can retrieve relevant Korean visual documents—including screenshots, presentation slides, and office documents—when given Korean text queries.
+
+The benchmark encompasses 5 distinct tasks, each targeting different types of visual documents commonly found in Korean business and academic environments. This diverse task structure allows for thorough evaluation of multimodal retrieval performance across various document formats and content types.
 
 ## Tasks & Examples
 
@@ -16,8 +18,7 @@ KoVidore is a comprehensive benchmark based on the MTEB framework that evaluates
 | **Office** | Office Documents | 1,993 | 222 | 관세평가분류원 HIT팀 결성 목적은 무엇인가? | <img src="assets/examples/office_sample.jpg" width="200" alt="Office"> |
 | **FinOCR** | Financial OCR Documents | 2,000 | 187 | 예금보험공사채 78 변경등록신청서에서 변경후 성명 장인성과 주민(사업자)등록번호 324592-9480032가 기재된 문서 | <img src="assets/examples/finocr_sample.png" width="200" alt="FinOCR"> |
 
-
-### Performance Leaderboard
+## Performance Leaderboard
 
 The following table shows NDCG@5 performance across all KoVidore tasks:
 
@@ -45,7 +46,7 @@ uv pip install -e .
 
 ## Quick Start
 
-### Using the CLI:
+### Using the CLI
 
 ```bash
 # Run all tasks with default model
@@ -61,7 +62,7 @@ uv run kovidore --model "your-model-name" --tasks mir vqa
 uv run kovidore --list-tasks
 ```
 
-### Using as a library:
+### Using as a Library
 
 ```python
 from src.evaluate import run_benchmark
@@ -77,6 +78,20 @@ evaluation = run_benchmark("your-model-name", tasks=["mir", "vqa"])
 
 Results are automatically saved in the `results/` directory after evaluation completion. The benchmark uses NDCG@5 as the main evaluation metric for all tasks.
 
-## License
+## Acknowledgements
 
-TBA
+This benchmark is inspired by the [ViDoRe](https://github.com/illuin-tech/vidore-benchmark) benchmark. We thank the original authors for their foundational work that helped shape our approach to Korean visual document retrieval.
+
+We also acknowledge the following Korean datasets from AI Hub that were used to construct each task in KoVidore:
+
+- **[멀티모달 정보검색 데이터](https://aihub.or.kr/aihubdata/data/view.do?currMenu=115&topMenu=100&dataSetSn=71813)** - Used for KoVidoreMIRRetrieval task
+- **[시각화 자료 질의응답 데이터](https://aihub.or.kr/aihubdata/data/view.do?currMenu=115&topMenu=100&dataSetSn=71812)** - Used for KoVidoreVQARetrieval task  
+- **[오피스 문서 생성 데이터](https://www.aihub.or.kr/aihubdata/data/view.do?currMenu=115&topMenu=100&dataSetSn=71811)** - Used for KoVidoreSlideRetrieval and KoVidoreOfficeRetrieval tasks
+- **[OCR 데이터(금융 및 물류)](https://www.aihub.or.kr/aihubdata/data/view.do?currMenu=115&topMenu=100&dataSetSn=71301)** - Used for KoVidoreFinOCRRetrieval task
+
+## Contact
+
+For questions or suggestions, please open an issue on the GitHub repository or contact the maintainers:
+
+- Yongbin Choi - [whybe-choi](https://github.com/whybe-choi) - whybe.choi@gmail.com
+- Yongwoo Song - [facerain](https://github.com/facerain) - syw5141@khu.ac.kr
