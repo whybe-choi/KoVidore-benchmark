@@ -1,4 +1,5 @@
 import logging
+import traceback
 from typing import Dict, List, Any, Optional, Tuple
 from pathlib import Path
 import pandas as pd
@@ -34,6 +35,8 @@ def _load_local_data(subset_name: str, splits: List[str] = ["test"]):
     data_dir = Path(f"data/{subset_name}")
     
     if not data_dir.exists():
+        logger.error(f"Data directory not found: {data_dir}")
+        logger.error("Please ensure the data directory exists and contains the required CSV files")
         raise FileNotFoundError(f"Data directory not found: {data_dir}")
     
     for split in splits:
@@ -41,7 +44,14 @@ def _load_local_data(subset_name: str, splits: List[str] = ["test"]):
         queries_file = data_dir / "queries.csv"
         query_data = []
         if queries_file.exists():
-            queries_df = pd.read_csv(queries_file)
+            try:
+                queries_df = pd.read_csv(queries_file)
+            except Exception as e:
+                logger.error(f"Failed to read queries file {queries_file}: {e}")
+                logger.debug(f"Queries file error traceback:\n{traceback.format_exc()}")
+                raise
+        else:
+            logger.warning(f"Queries file not found: {queries_file}")
             for _, row in queries_df.iterrows():
                 query_data.append({
                     "id": f"query-{split}-{row['query-id']}",
@@ -55,7 +65,14 @@ def _load_local_data(subset_name: str, splits: List[str] = ["test"]):
         corpus_file = data_dir / "corpus.csv"
         corpus_data = []
         if corpus_file.exists():
-            corpus_df = pd.read_csv(corpus_file)
+            try:
+                corpus_df = pd.read_csv(corpus_file)
+            except Exception as e:
+                logger.error(f"Failed to read corpus file {corpus_file}: {e}")
+                logger.debug(f"Corpus file error traceback:\n{traceback.format_exc()}")
+                raise
+        else:
+            logger.warning(f"Corpus file not found: {corpus_file}")
             for _, row in corpus_df.iterrows():
                 corpus_id = str(row["corpus-id"])
                 image_path_str = row.get("image_path", "")
@@ -67,6 +84,7 @@ def _load_local_data(subset_name: str, splits: List[str] = ["test"]):
                         image = Image.open(image_path_str)
                     except Exception as e:
                         logger.warning(f"Failed to load image {image_path_str}: {e}")
+                        logger.debug(f"Image loading error traceback:\n{traceback.format_exc()}")
                 
                 corpus_data.append({
                     "id": f"corpus-{split}-{corpus_id}",
@@ -80,7 +98,14 @@ def _load_local_data(subset_name: str, splits: List[str] = ["test"]):
         qrels_file = data_dir / "qrels.csv"
         relevant_docs[split] = {}
         if qrels_file.exists():
-            qrels_df = pd.read_csv(qrels_file)
+            try:
+                qrels_df = pd.read_csv(qrels_file)
+            except Exception as e:
+                logger.error(f"Failed to read qrels file {qrels_file}: {e}")
+                logger.debug(f"Qrels file error traceback:\n{traceback.format_exc()}")
+                raise
+        else:
+            logger.warning(f"Qrels file not found: {qrels_file}")
             for _, row in qrels_df.iterrows():
                 query_id = f"query-{split}-{row['query-id']}"
                 corpus_id = f"corpus-{split}-{row['corpus-id']}"
@@ -332,7 +357,7 @@ class KoVidoreFinOCRRetrieval(AbsTaskAny2AnyRetrieval):
                 "test": {
                     "average_document_length": 1.0,
                     "num_documents": 2000,
-                    "num_queries": 187,
+                    "num_queries": 198,
                     "average_relevant_docs_per_query": 1.0,
                 }
             },
@@ -388,27 +413,57 @@ def run_benchmark(
         # Validate tasks
         invalid_tasks = [task for task in tasks if task not in AVAILABLE_TASKS]
         if invalid_tasks:
-            logger.error(f"Invalid tasks: {invalid_tasks}")
-            logger.info(f"Available tasks: {list(AVAILABLE_TASKS.keys())}")
+            logger.error(f"Invalid tasks specified: {invalid_tasks}")
+            logger.error(f"Available tasks: {list(AVAILABLE_TASKS.keys())}")
+            logger.error("Please check your task names and try again")
             return None
         
         # Use mteb.get_model() for standardized model loading
-        model = mteb.get_model(model_name)
+        try:
+            logger.info(f"Loading model: {model_name}")
+            model = mteb.get_model(model_name)
+            logger.info(f"Model loaded successfully: {type(model).__name__}")
+        except Exception as e:
+            logger.error(f"Failed to load model '{model_name}': {e}")
+            logger.error("Please check if the model name is correct and accessible")
+            logger.debug(f"Model loading error traceback:\n{traceback.format_exc()}")
+            raise
         selected_tasks = [AVAILABLE_TASKS[task]() for task in tasks]
         
         logger.info(f"Starting evaluation with model: {model_name}")
         logger.info(f"Running tasks: {tasks}")
         
-        evaluation = mteb.MTEB(tasks=selected_tasks)
-        results = evaluation.run(model, output_folder=f"results/{model_name}", encode_kwargs = {'batch_size': batch_size})
+        try:
+            evaluation = mteb.MTEB(tasks=selected_tasks)
+            logger.info(f"Starting evaluation with batch_size={batch_size}")
+            results = evaluation.run(model, output_folder=f"results/{model_name}", encode_kwargs = {'batch_size': batch_size})
+        except Exception as e:
+            logger.error(f"Evaluation execution failed: {e}")
+            logger.error(f"Model: {model_name}, Tasks: {tasks}, Batch size: {batch_size}")
+            logger.debug(f"Evaluation error traceback:\n{traceback.format_exc()}")
+            raise
         
         logger.info("Evaluation completed successfully")
         return evaluation
-    except ImportError:
-        logger.error("Required packages not installed. Please install mteb and sentence-transformers.")
+    except ImportError as e:
+        logger.error(f"Required packages not installed: {e}")
+        logger.error("Please install mteb and sentence-transformers:")
+        logger.error("  pip install mteb sentence-transformers")
+        logger.debug(f"Import error traceback:\n{traceback.format_exc()}")
+        return None
+    except FileNotFoundError as e:
+        logger.error(f"File or directory not found: {e}")
+        logger.error("Please ensure data directories exist and contain required files")
+        logger.debug(f"File not found traceback:\n{traceback.format_exc()}")
+        return None
+    except ValueError as e:
+        logger.error(f"Invalid parameter value: {e}")
+        logger.debug(f"Value error traceback:\n{traceback.format_exc()}")
         return None
     except Exception as e:
         logger.error(f"Evaluation failed: {e}")
+        logger.error(f"Error type: {type(e).__name__}")
+        logger.error(f"Full traceback:\n{traceback.format_exc()}")
         return None
 
 
