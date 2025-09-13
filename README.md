@@ -13,10 +13,10 @@ The benchmark encompasses 5 distinct tasks, each targeting different types of vi
 | Task | Description | Documents | Queries | Example Query | Sample Image |
 |------|-------------|-----------|---------|---------------|--------------|
 | **MIR** | Multimodal Information Retrieval | 1,366 | 1,496 | 코로나19 동절기 집중접종기간 운영개요 혼합형에 대해 알려주세요 | <img src="assets/examples/mir_sample.jpg" width="200" alt="MIR"> |
-| **VQA** | Visual Question Answering | 1,101 | 1,500 | 3월의 물량 증감률은 몇 퍼센트인가요? | <img src="assets/examples/vqa_sample.png" width="200" alt="VQA"> |
-| **Slide** | Presentation Slides | 1,415 | 180 | 나무가 주거 공간에서 제공하는 역할은 무엇인가? | <img src="assets/examples/slide_sample.jpg" width="200" alt="Slide"> |
-| **Office** | Office Documents | 1,993 | 222 | 관세평가분류원 HIT팀 결성 목적은 무엇인가? | <img src="assets/examples/office_sample.jpg" width="200" alt="Office"> |
-| **FinOCR** | Financial OCR Documents | 2,000 | 187 | 예금보험공사채 78 변경등록신청서에서 변경후 성명 장인성과 주민(사업자)등록번호 324592-9480032가 기재된 문서 | <img src="assets/examples/finocr_sample.png" width="200" alt="FinOCR"> |
+| **VQA** | Visual Question Answering | 1,101 | 1,500 | 경제협력 품목 중 가장 적은 교역액과 가장 많은 교역액의 차이는 얼마인가요? | <img src="assets/examples/vqa_sample.png" width="200" alt="VQA"> |
+| **Slide** | Presentation Slides | 1,415 | 180 | 포털 사이트나 콘텐츠 제공자가 기존 콘텐츠를 다양한 장치로 서비스할 때 얻는 이점은 무엇인가? | <img src="assets/examples/slide_sample.jpg" width="200" alt="Slide"> |
+| **Office** | Office Documents | 1,993 | 222 | 정치·사회 이슈를 주제로 하는 유튜브 채널을 통해 정보를 얻는 비율은 얼마인가요? | <img src="assets/examples/office_sample.jpg" width="200" alt="Office"> |
+| **FinOCR** | Financial OCR Documents | 2,000 | 198 | 반려동물보험에 가입한 보험계약자 공형진의 증권번호는 무엇인가요? | <img src="assets/examples/finocr_sample.png" width="200" alt="FinOCR"> |
 
 ## Performance Leaderboard
 
@@ -91,9 +91,6 @@ We provide pre-processed queries and query-corpus mappings for each task. Howeve
     ```
 
 The benchmark will automatically locate and use the images from these directories during evaluation.
-
-```
-
 
 ## Results
 
