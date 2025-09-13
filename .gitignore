@@ -2,6 +2,9 @@
 images/
 results/
 
+# Allow test dataset images for GitHub sharing
+!data/test/images/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]

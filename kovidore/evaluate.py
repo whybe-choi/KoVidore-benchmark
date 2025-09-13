@@ -376,12 +376,62 @@ class KoVidoreFinOCRRetrieval(AbsTaskAny2AnyRetrieval):
         self.data_loaded = True
 
 
+class KoVidoreTestRetrieval(AbsTaskAny2AnyRetrieval):
+    metadata = TaskMetadata(
+        name="KoVidoreTestRetrieval",
+        description="Test dataset for Korean visual document retrieval.",
+        reference="https://github.com/facerain/KoVidore-benchmark",
+        dataset={
+            "path": "data/test",
+            "revision": "local",
+        },
+        type="DocumentUnderstanding",
+        category="t2i",
+        eval_splits=["test"],
+        eval_langs=["kor-Hang"],
+        main_score="ndcg_at_5",
+        date=("2025-01-01", "2025-03-01"),
+        domains=["Academic"],
+        task_subtypes=["Image Text Retrieval"],
+        license="mit",
+        annotations_creators="derived",
+        dialect=[],
+        modalities=["text", "image"],
+        sample_creation="found",
+
+        prompt={"query": "Find a screenshot that relevant to the user's question."},
+        descriptive_stats={
+            "n_samples": None,
+            "avg_character_length": {
+                "test": {
+                    "average_document_length": 1.0,
+                    "num_documents": 10,
+                    "num_queries": 5,
+                    "average_relevant_docs_per_query": 2.0,
+                }
+            },
+        },
+    )
+
+    def load_data(self, **kwargs):
+        if self.data_loaded:
+            return
+
+        self.corpus, self.queries, self.relevant_docs = _load_local_data(
+            subset_name="test",
+            splits=self.metadata_dict["eval_splits"]
+        )
+
+        self.data_loaded = True
+
+
 AVAILABLE_TASKS = {
     "mir": KoVidoreMIRRetrieval,
     "vqa": KoVidoreVQARetrieval,
     "slide": KoVidoreSlideRetrieval,
     "office": KoVidoreOfficeRetrieval,
     "finocr": KoVidoreFinOCRRetrieval,
+    "test": KoVidoreTestRetrieval,
 }
 
 ALL_TASKS = ["mir", "vqa", "slide", "office", "finocr"]
