@@ -33,7 +33,7 @@ DATASETS = {
     },
     "finocr": {
         "path": "whybe-choi/kovidore-finocr-v1.0-beir",
-        "revision": "0959e3bed492ecac92391ae01cbab1cd73725d28"
+        "revision": "7bb3aa802bba49f167696ffd9fbb669ad2133092"
     }
 }
 
