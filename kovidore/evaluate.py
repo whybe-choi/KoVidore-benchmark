@@ -6,7 +6,7 @@ import pandas as pd
 from PIL import Image
 
 from mteb import MTEB
-from mteb.abstasks import AbsTaskAny2AnyRetrieval
+from mteb.abstasks.Image.AbsTaskAny2AnyRetrieval import AbsTaskAny2AnyRetrieval
 from mteb.abstasks.TaskMetadata import TaskMetadata
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
