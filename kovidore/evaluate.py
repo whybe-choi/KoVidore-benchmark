@@ -71,18 +71,18 @@ def _load_local_data(subset_name: str, splits: List[str] = ["test"]):
                 corpus_df = pd.read_csv(corpus_file)
                 logger.info(f"Loaded corpus CSV with {len(corpus_df)} rows")
                 for _, row in corpus_df.iterrows():
-                corpus_id = str(row["corpus-id"])
-                image_path_str = row.get("image_path", "")
-                
-                # Load image if path exists
-                image = None
-                if image_path_str and Path(image_path_str).exists():
-                    try:
-                        image = Image.open(image_path_str)
-                    except Exception as e:
-                        logger.warning(f"Failed to load image {image_path_str}: {e}")
-                        logger.debug(f"Image loading error traceback:\n{traceback.format_exc()}")
-                
+                    corpus_id = str(row["corpus-id"])
+                    image_path_str = row.get("image_path", "")
+                    
+                    # Load image if path exists
+                    image = None
+                    if image_path_str and Path(image_path_str).exists():
+                        try:
+                            image = Image.open(image_path_str)
+                        except Exception as e:
+                            logger.warning(f"Failed to load image {image_path_str}: {e}")
+                            logger.debug(f"Image loading error traceback:\n{traceback.format_exc()}")
+                    
                     corpus_data.append({
                         "id": f"corpus-{split}-{corpus_id}",
                         "text": None,
@@ -106,10 +106,10 @@ def _load_local_data(subset_name: str, splits: List[str] = ["test"]):
                 qrels_df = pd.read_csv(qrels_file)
                 logger.info(f"Loaded qrels CSV with {len(qrels_df)} rows")
                 for _, row in qrels_df.iterrows():
-                query_id = f"query-{split}-{row['query-id']}"
-                corpus_id = f"corpus-{split}-{row['corpus-id']}"
-                score = int(row["score"])
-                
+                    query_id = f"query-{split}-{row['query-id']}"
+                    corpus_id = f"corpus-{split}-{row['corpus-id']}"
+                    score = int(row["score"])
+                    
                     # Add to relevant_docs
                     if query_id not in relevant_docs[split]:
                         relevant_docs[split][query_id] = {}
