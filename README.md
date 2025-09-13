@@ -49,14 +49,15 @@ uv pip install -e .
 ### Using the CLI
 
 ```bash
-# Run all tasks with default model
-uv run kovidore
 
 # Run with custom model
 uv run kovidore --model "your-model-name"
 
 # Run specific tasks
 uv run kovidore --model "your-model-name" --tasks mir vqa
+
+# Run with custom batch size (default: 16)
+uv run kovidore --model "your-model-name" --batch-size 32
 
 # List available tasks
 uv run kovidore --list-tasks
@@ -72,6 +73,9 @@ evaluation = run_benchmark("your-model-name")
 
 # Run specific tasks
 evaluation = run_benchmark("your-model-name", tasks=["mir", "vqa"])
+
+# Run with custom batch size
+evaluation = run_benchmark("your-model-name", batch_size=32)
 ```
 
 ## Datasets

@@ -364,7 +364,8 @@ ALL_TASKS = ["mir", "vqa", "slide", "office", "finocr"]
 
 def run_benchmark(
     model_name: str = "average_word_embeddings_komninos",
-    tasks: Optional[List[str]] = None
+    tasks: Optional[List[str]] = None,
+    batch_size: int = 16
 ):
     """
     Run KoVidore benchmark evaluation.
@@ -373,6 +374,7 @@ def run_benchmark(
         model_name: Name of the model to evaluate
         tasks: List of tasks to run. If None, runs all tasks.
                Available: "mir", "vqa", "slide", "office", "finocr"
+        batch_size: Batch size for encoding (default: 16)
     
     Returns:
         MTEB evaluation object or None if failed
@@ -398,7 +400,7 @@ def run_benchmark(
         logger.info(f"Running tasks: {tasks}")
         
         evaluation = mteb.MTEB(tasks=selected_tasks)
-        results = evaluation.run(model, output_folder=f"results/{model_name}")
+        results = evaluation.run(model, output_folder=f"results/{model_name}", encode_kwargs = {'batch_size': batch_size})
         
         logger.info("Evaluation completed successfully")
         return evaluation

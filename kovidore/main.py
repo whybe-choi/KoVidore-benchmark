@@ -33,6 +33,12 @@ def main():
         action="store_true",
         help="List available tasks and exit"
     )
+    parser.add_argument(
+        "--batch-size",
+        type=int,
+        default=16,
+        help="Batch size for encoding (default: 16)"
+    )
     
     args = parser.parse_args()
     
@@ -49,7 +55,7 @@ def main():
     logger.info(f"Tasks: {', '.join(tasks_to_run)}")
     logger.info("=" * 60)
     
-    evaluation = run_benchmark(args.model, tasks_to_run)
+    evaluation = run_benchmark(args.model, tasks_to_run, batch_size=args.batch_size)
     
     if evaluation is not None:
         logger.info("Benchmark completed successfully!")
