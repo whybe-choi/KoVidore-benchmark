@@ -46,19 +46,21 @@ def _load_local_data(subset_name: str, splits: List[str] = ["test"]):
         if queries_file.exists():
             try:
                 queries_df = pd.read_csv(queries_file)
+                logger.info(f"Loaded queries CSV with {len(queries_df)} rows")
+                for _, row in queries_df.iterrows():
+                    query_data.append({
+                        "id": f"query-{split}-{row['query-id']}",
+                        "text": str(row["text"]),
+                        "image": None,
+                        "modality": "text"
+                    })
+                logger.info(f"Created {len(query_data)} query entries for split {split}")
             except Exception as e:
                 logger.error(f"Failed to read queries file {queries_file}: {e}")
                 logger.debug(f"Queries file error traceback:\n{traceback.format_exc()}")
                 raise
         else:
             logger.warning(f"Queries file not found: {queries_file}")
-            for _, row in queries_df.iterrows():
-                query_data.append({
-                    "id": f"query-{split}-{row['query-id']}",
-                    "text": str(row["text"]),
-                    "image": None,
-                    "modality": "text"
-                })
         queries[split] = Dataset.from_list(query_data)
         
         # Load corpus data
@@ -67,13 +69,8 @@ def _load_local_data(subset_name: str, splits: List[str] = ["test"]):
         if corpus_file.exists():
             try:
                 corpus_df = pd.read_csv(corpus_file)
-            except Exception as e:
-                logger.error(f"Failed to read corpus file {corpus_file}: {e}")
-                logger.debug(f"Corpus file error traceback:\n{traceback.format_exc()}")
-                raise
-        else:
-            logger.warning(f"Corpus file not found: {corpus_file}")
-            for _, row in corpus_df.iterrows():
+                logger.info(f"Loaded corpus CSV with {len(corpus_df)} rows")
+                for _, row in corpus_df.iterrows():
                 corpus_id = str(row["corpus-id"])
                 image_path_str = row.get("image_path", "")
                 
@@ -86,12 +83,19 @@ def _load_local_data(subset_name: str, splits: List[str] = ["test"]):
                         logger.warning(f"Failed to load image {image_path_str}: {e}")
                         logger.debug(f"Image loading error traceback:\n{traceback.format_exc()}")
                 
-                corpus_data.append({
-                    "id": f"corpus-{split}-{corpus_id}",
-                    "text": None,
-                    "image": image,
-                    "modality": "image"
-                })
+                    corpus_data.append({
+                        "id": f"corpus-{split}-{corpus_id}",
+                        "text": None,
+                        "image": image,
+                        "modality": "image"
+                    })
+                logger.info(f"Created {len(corpus_data)} corpus entries for split {split}")
+            except Exception as e:
+                logger.error(f"Failed to read corpus file {corpus_file}: {e}")
+                logger.debug(f"Corpus file error traceback:\n{traceback.format_exc()}")
+                raise
+        else:
+            logger.warning(f"Corpus file not found: {corpus_file}")
         corpus[split] = Dataset.from_list(corpus_data)
         
         # Load qrels (relevance judgments)
@@ -100,21 +104,23 @@ def _load_local_data(subset_name: str, splits: List[str] = ["test"]):
         if qrels_file.exists():
             try:
                 qrels_df = pd.read_csv(qrels_file)
+                logger.info(f"Loaded qrels CSV with {len(qrels_df)} rows")
+                for _, row in qrels_df.iterrows():
+                query_id = f"query-{split}-{row['query-id']}"
+                corpus_id = f"corpus-{split}-{row['corpus-id']}"
+                score = int(row["score"])
+                
+                    # Add to relevant_docs
+                    if query_id not in relevant_docs[split]:
+                        relevant_docs[split][query_id] = {}
+                    relevant_docs[split][query_id][corpus_id] = score
+                logger.info(f"Created {len(relevant_docs[split])} qrels entries for split {split}")
             except Exception as e:
                 logger.error(f"Failed to read qrels file {qrels_file}: {e}")
                 logger.debug(f"Qrels file error traceback:\n{traceback.format_exc()}")
                 raise
         else:
             logger.warning(f"Qrels file not found: {qrels_file}")
-            for _, row in qrels_df.iterrows():
-                query_id = f"query-{split}-{row['query-id']}"
-                corpus_id = f"corpus-{split}-{row['corpus-id']}"
-                score = int(row["score"])
-                
-                # Add to relevant_docs
-                if query_id not in relevant_docs[split]:
-                    relevant_docs[split][query_id] = {}
-                relevant_docs[split][query_id][corpus_id] = score
     
     logger.info(f"Loaded {subset_name}: {len(query_data)} queries, {len(corpus_data)} documents")
     return corpus, queries, relevant_docs
