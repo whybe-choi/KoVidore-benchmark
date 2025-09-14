@@ -116,5 +116,5 @@ We also acknowledge the following Korean datasets from AI Hub that were used to 
 
 For questions or suggestions, please open an issue on the GitHub repository or contact the maintainers:
 
-- Yongbin Choi - [whybe-choi](https://github.com/whybe-choi) - whybe.choi@gmail.com
-- Yongwoo Song - [facerain](https://github.com/facerain) - syw5141@khu.ac.kr
+- [Yongbin Choi](https://github.com/whybe-choi) - whybe.choi@gmail.com
+- [Yongwoo Song](https://github.com/facerain) - syw5141@khu.ac.kr
