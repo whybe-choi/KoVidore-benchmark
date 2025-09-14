@@ -27,5 +27,8 @@ packages = ["kovidore"]
 [tool.uv.sources]
 colpali-engine = { git = "https://github.com/illuin-tech/colpali" }
 
+[tool.uv.extra-build-dependencies]
+flash-attn = [{ requirement = "torch", match-runtime = true }]
+
 [project.scripts]
 kovidore = "kovidore.main:main"
