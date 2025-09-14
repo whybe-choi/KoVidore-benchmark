@@ -1,5 +1,6 @@
 import logging
 import traceback
+import json
 from typing import Dict, List, Any, Optional, Tuple
 from pathlib import Path
 import pandas as pd
@@ -443,30 +444,88 @@ AVAILABLE_TASKS = {
 ALL_TASKS = ["mir", "vqa", "slide", "office", "finocr"]
 
 
+def check_existing_results(model_name: str, tasks: List[str]) -> Tuple[List[str], List[str]]:
+    """
+    Check which tasks already have results and which need to be evaluated.
+
+    Args:
+        model_name: Name of the model
+        tasks: List of task names to check
+
+    Returns:
+        Tuple of (tasks_to_run, tasks_with_results)
+    """
+    results_dir = Path("results") / model_name
+    tasks_to_run = []
+    tasks_with_results = []
+
+    for task in tasks:
+        task_class_name = AVAILABLE_TASKS[task].__name__
+
+        # Look for existing result files with this task name
+        found = False
+        if results_dir.exists():
+            for result_file in results_dir.rglob(f"{task_class_name}.json"):
+                try:
+                    with open(result_file, 'r') as f:
+                        result_data = json.load(f)
+
+                    # Check if the result file has valid scores
+                    if "scores" in result_data and result_data["scores"]:
+                        logger.info(f"Found existing results for {task} ({task_class_name}): {result_file}")
+                        tasks_with_results.append(task)
+                        found = True
+                        break
+                except (json.JSONDecodeError, KeyError) as e:
+                    logger.warning(f"Invalid result file {result_file}: {e}")
+                    continue
+
+        if not found:
+            tasks_to_run.append(task)
+
+    return tasks_to_run, tasks_with_results
+
+
 def run_benchmark(
     model_name: str = "average_word_embeddings_komninos",
     tasks: Optional[List[str]] = None,
-    batch_size: int = 16
+    batch_size: int = 16,
+    skip_existing: bool = True
 ):
     """
     Run KoVidore benchmark evaluation.
-    
+
     Args:
         model_name: Name of the model to evaluate
         tasks: List of tasks to run. If None, runs all tasks.
                Available: "mir", "vqa", "slide", "office", "finocr"
         batch_size: Batch size for encoding (default: 16)
-    
+        skip_existing: If True, skip tasks that already have results (default: True)
+
     Returns:
         MTEB evaluation object or None if failed
     """
     try:
         import mteb
-        
+
         if tasks is None:
             tasks = ALL_TASKS
-            
-        # Validate tasks
+
+        # Check for existing results and filter tasks
+        if skip_existing:
+            tasks_to_run, tasks_with_results = check_existing_results(model_name, tasks)
+
+            if tasks_with_results:
+                logger.info(f"Skipping {len(tasks_with_results)} tasks with existing results: {tasks_with_results}")
+
+            if not tasks_to_run:
+                logger.info("All requested tasks already have results. Nothing to do.")
+                return None
+
+            logger.info(f"Will evaluate {len(tasks_to_run)} tasks: {tasks_to_run}")
+            tasks = tasks_to_run
+
+        # Validate remaining tasks
         invalid_tasks = [task for task in tasks if task not in AVAILABLE_TASKS]
         if invalid_tasks:
             logger.error(f"Invalid tasks specified: {invalid_tasks}")

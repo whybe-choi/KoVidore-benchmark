@@ -39,6 +39,11 @@ def main():
         default=16,
         help="Batch size for encoding (default: 16)"
     )
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Force re-evaluation even if results already exist"
+    )
     
     args = parser.parse_args()
     
@@ -55,7 +60,12 @@ def main():
     logger.info(f"Tasks: {', '.join(tasks_to_run)}")
     logger.info("=" * 60)
     
-    evaluation = run_benchmark(args.model, tasks_to_run, batch_size=args.batch_size)
+    evaluation = run_benchmark(
+        args.model,
+        tasks_to_run,
+        batch_size=args.batch_size,
+        skip_existing=not args.force
+    )
     
     if evaluation is not None:
         logger.info("Benchmark completed successfully!")
