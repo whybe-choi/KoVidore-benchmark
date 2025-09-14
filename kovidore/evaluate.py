@@ -79,7 +79,8 @@ def _load_local_data(subset_name: str, splits: List[str] = ["test"]):
                     image = None
                     if image_path_str and Path(image_path_str).exists():
                         try:
-                            image = Image.open(image_path_str)
+                            with Image.open(image_path_str) as img:
+                                image = img.copy()
                         except Exception as e:
                             logger.warning(f"Failed to load image {image_path_str}: {e}")
                             logger.debug(f"Image loading error traceback:\n{traceback.format_exc()}")
