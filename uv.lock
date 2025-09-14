@@ -1,5 +1,5 @@
 version = 1
-revision = 2
+revision = 3
 requires-python = ">=3.12"
 
 [[package]]
@@ -247,6 +247,16 @@ wheels = [
 ]
 
 [[package]]
+name = "flash-attn"
+version = "2.8.3"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "einops" },
+    { name = "torch" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/3b/b2/8d76c41ad7974ee264754709c22963447f7f8134613fd9ce80984ed0dab7/flash_attn-2.8.3.tar.gz", hash = "sha256:1e71dd64a9e0280e0447b8a0c2541bad4bf6ac65bdeaa2f90e51a9e57de0370d", size = 8447812, upload-time = "2025-08-15T08:28:12.911Z" }
+
+[[package]]
 name = "frozenlist"
 version = "1.7.0"
 source = { registry = "https://pypi.org/simple" }
@@ -404,6 +414,7 @@ dependencies = [
     { name = "colpali-engine" },
     { name = "datasets" },
     { name = "einops" },
+    { name = "flash-attn" },
     { name = "mteb" },
     { name = "open-clip-torch" },
     { name = "pandas" },
@@ -421,6 +432,7 @@ requires-dist = [
     { name = "colpali-engine", git = "https://github.com/illuin-tech/colpali" },
     { name = "datasets", specifier = ">=3.6.0" },
     { name = "einops", specifier = ">=0.8.1" },
+    { name = "flash-attn", specifier = ">=2.8.3" },
     { name = "mteb", specifier = ">=1.38.54" },
     { name = "open-clip-torch", specifier = ">=3.1.0" },
     { name = "pandas", specifier = ">=2.0.0" },
