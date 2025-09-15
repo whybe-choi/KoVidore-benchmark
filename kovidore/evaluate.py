@@ -95,7 +95,7 @@ def _load_local_data(subset_name: str, splits: List[str] = ["test"]):
             try:
                 queries_df = pd.read_csv(queries_file)
                 logger.info(f"Loaded queries CSV with {len(queries_df)} rows")
-                for _, row in queries_df.iterrows():
+                for _, row in tqdm(queries_df.iterrows(), total=len(queries_df), desc=f"Processing queries for {split}"):
                     query_data.append({
                         "id": f"query-{split}-{row['query-id']}",
                         "text": str(row["text"]),
@@ -113,46 +113,43 @@ def _load_local_data(subset_name: str, splits: List[str] = ["test"]):
         
         # Load corpus data
         corpus_file = data_dir / "corpus.csv"
-        corpus_data = []
         if corpus_file.exists():
             try:
                 corpus_df = pd.read_csv(corpus_file)
                 logger.info(f"Loaded corpus CSV with {len(corpus_df)} rows")
 
-                # Extract all image paths for parallel loading
-                image_paths = []
-                corpus_rows = []
-                for _, row in corpus_df.iterrows():
-                    corpus_id = str(row["corpus-id"])
-                    image_path_str = row.get("image_path", "")
+                # Create generator with direct image loading
+                def corpus_generator():
+                    for _, row in tqdm(corpus_df.iterrows(), total=len(corpus_df), desc=f"Loading corpus images for {split}"):
+                        corpus_id = str(row["corpus-id"])
+                        image_path_str = row.get("image_path", "")
 
-                    corpus_rows.append((corpus_id, image_path_str))
-                    if image_path_str and Path(image_path_str).exists():
-                        image_paths.append(image_path_str)
+                        # Load image directly in generator
+                        image = None
+                        if image_path_str and Path(image_path_str).exists():
+                            try:
+                                from PIL import Image
+                                with Image.open(image_path_str) as img:
+                                    image = img.convert("RGB").copy()
+                            except Exception as e:
+                                logger.warning(f"Failed to load image {image_path_str}: {e}")
+                                image = None
 
-                # Load all images in parallel
-                logger.info(f"Loading {len(image_paths)} images in parallel...")
-                loaded_images = load_images_parallel(image_paths, max_workers=4)
-                logger.info(f"Loaded {len([img for img in loaded_images.values() if img is not None])} images successfully")
+                        yield {
+                            "id": f"corpus-{split}-{corpus_id}",
+                            "text": None,
+                            "image": image,
+                            "modality": "image"
+                        }
 
-                # Create corpus entries with loaded images
-                for corpus_id, image_path_str in corpus_rows:
-                    image = loaded_images.get(image_path_str, None) if image_path_str else None
-
-                    corpus_data.append({
-                        "id": f"corpus-{split}-{corpus_id}",
-                        "text": None,
-                        "image": image,
-                        "modality": "image"
-                    })
-                logger.info(f"Created {len(corpus_data)} corpus entries for split {split}")
+                logger.info(f"Created corpus generator for {len(corpus_df)} entries for split {split}")
             except Exception as e:
                 logger.error(f"Failed to read corpus file {corpus_file}: {e}")
                 logger.debug(f"Corpus file error traceback:\n{traceback.format_exc()}")
                 raise
         else:
             logger.warning(f"Corpus file not found: {corpus_file}")
-        corpus[split] = Dataset.from_list(corpus_data)
+        corpus[split] = Dataset.from_generator(corpus_generator)
         
         # Load qrels (relevance judgments)
         qrels_file = data_dir / "qrels.csv"
@@ -169,7 +166,7 @@ def _load_local_data(subset_name: str, splits: List[str] = ["test"]):
                 from collections import defaultdict
                 temp_docs = defaultdict(dict)
 
-                for qid, cid, score in zip(query_ids, corpus_ids, scores):
+                for qid, cid, score in tqdm(zip(query_ids, corpus_ids, scores), total=len(qrels_df), desc=f"Processing qrels for {split}"):
                     temp_docs[qid][cid] = score
 
                 relevant_docs[split] = dict(temp_docs)
