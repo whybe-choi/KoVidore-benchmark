@@ -48,9 +48,6 @@ The following table shows performance across all KoVidore tasks (ndcg@5 scores a
 ```bash
 # Install dependencies
 uv sync
-
-# Install the package in editable mode
-uv pip install -e .
 ```
 
 ## Quick Start
