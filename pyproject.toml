@@ -25,6 +25,8 @@ dependencies = [
 [tool.setuptools]
 packages = ["kovidore"]
 
+[tool.uv]
+package = true
 
 [tool.uv.sources]
 colpali-engine = { git = "https://github.com/illuin-tech/colpali" }
