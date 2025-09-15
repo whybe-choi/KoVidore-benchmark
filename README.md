@@ -21,25 +21,27 @@ The benchmark encompasses 5 distinct tasks, each targeting different types of vi
 
 ## Performance Leaderboard
 
-The following table shows performance across all KoVidore tasks (main scores as percentages):
+The following table shows performance across all KoVidore tasks (ndcg@5 scores as percentages):
 
 | Model | Model Size | FinOCR | MIR | Office | Slide | VQA | Average | ViDoRe V2 (Eng) |
 |-------|------------|--------|-----|--------|-------|-----|---------|------------------|
-| **colnomic-embed-multimodal-3b** | 3000 | 82.2 | 70.7 | 86.3 | 78.4 | 84.4 | 80.4 | 55.5 |
-| **colnomic-embed-multimodal-7b** | 7000 | 81.9 | 67.9 | 84.8 | 77.0 | 83.2 | 79.0 | 60.8 |
-| **colqwen2.5-v0.2** | 3000 | 67.3 | 62.5 | 75.3 | 78.0 | 81.0 | 72.8 | 59.3 |
-| **colqwen2-v1.0** | 2210 | 66.3 | 57.4 | 68.7 | 73.9 | 75.5 | 68.4 | 55.0 |
-| **colpali-v1.2** | 2920 | 43.8 | 20.2 | 28.4 | 51.2 | 36.8 | 36.1 | 50.7 |
-| **colpali-v1.3** | 2920 | 42.6 | 18.8 | 26.4 | 55.3 | 36.6 | 35.9 | 54.2 |
-| **colpali-v1.1** | 2920 | 38.3 | 19.0 | 25.3 | 48.6 | 30.0 | 32.2 | 47.2 |
-| **llama-nemoretriever-colembed-1b-v1** | 1000 | 28.1 | 25.3 | 24.6 | 36.6 | 29.2 | 28.8 | - |
-| **colSmol-500M** | 500 | 50.9 | 4.7 | 9.7 | 16.1 | 7.4 | 17.8 | 43.5 |
-| **colSmol-256M** | 256 | 46.6 | 4.0 | 8.4 | 13.9 | 7.6 | 16.1 | 32.9 |
-| **siglip-so400m-patch14-384** | 878 | 4.0 | 3.9 | 6.3 | 21.3 | 7.3 | 8.6 | 31.4 |
-| **VLM2Vec-Full** | 4150 | 1.4 | 1.6 | 7.2 | 14.9 | 6.8 | 6.4 | 30.1 |
-| **CLIP-ViT-bigG-14-laion2B-39B-b160k** | 2540 | 0.5 | 1.9 | 3.7 | 12.5 | 5.6 | 4.8 | 17.6 |
-| **clip-vit-base-patch16** | 151 | 0.3 | 0.6 | 0.0 | 5.9 | 3.3 | 2.5 | 8.3 |
-| **granite-vision-3.3-2b-embedding** | 2980 | 0.0 | 0.4 | 0.6 | 0.3 | 0.0 | 0.26 | 58.1 |
+| **nomic-ai/colnomic-embed-multimodal-3b** | 3000 | 82.2 | 70.7 | 86.3 | 78.4 | 84.4 | 80.4 | 55.5 |
+| **nomic-ai/colnomic-embed-multimodal-7b** | 7000 | 81.9 | 67.9 | 85.9 | 87.6 | 87.2 | 82.1 | 60.8 |
+| **vidore/colqwen2.5-v0.2** | 3000 | 67.3 | 62.5 | 75.3 | 78.0 | 81.0 | 72.8 | 59.3 |
+| **vidore/colqwen2-v1.0** | 2210 | 66.3 | 57.4 | 68.7 | 73.9 | 75.5 | 68.4 | 55.0 |
+| **jinaai/jina-embeddings-v4** | 3800 | 88.9 | 73.8 | TBA | TBA | 86.2 | TBA | 57.6 |
+| **vidore/colpali-v1.2** | 2920 | 43.8 | 20.2 | 28.4 | 51.2 | 36.8 | 36.1 | 50.7 |
+| **vidore/colpali-v1.3** | 2920 | 42.6 | 18.8 | 26.4 | 55.3 | 36.6 | 35.9 | 54.2 |
+| **vidore/colpali-v1.1** | 2920 | 38.3 | 19.0 | 25.3 | 48.6 | 30.0 | 32.2 | 47.2 |
+| **nvidia/llama-nemoretriever-colembed-3b-v1** | 3000 | TBA | TBA | TBA | TBA | TBA | TBA | 63.5 |
+| **nvidia/llama-nemoretriever-colembed-1b-v1** | 1000 | TBA | 28.1 | TBA | TBA | 39.4 | TBA | 62.1 |
+| **vidore/colSmol-500M** | 500 | 50.9 | 4.7 | 9.7 | 16.1 | 7.4 | 17.8 | 43.5 |
+| **vidore/colSmol-256M** | 256 | 46.6 | 4.0 | 8.4 | 13.9 | 7.6 | 16.1 | 32.9 |
+| **google/siglip-so400m-patch14-384** | 878 | 4.0 | 3.9 | 6.3 | 21.3 | 7.3 | 8.6 | 31.4 |
+| **TIGER-Lab/VLM2Vec-Full** | 4150 | 1.4 | 1.6 | 7.2 | 14.9 | 6.8 | 6.4 | 30.1 |
+| **laion/CLIP-ViT-bigG-14-laion2B-39B-b160k** | 2540 | 0.5 | 1.9 | 3.7 | 12.5 | 5.6 | 4.8 | 17.6 |
+| **openai/clip-vit-base-patch16** | 151 | 0.3 | 0.6 | 0.0 | 5.9 | 3.3 | 2.5 | 8.3 |
+| **ibm-granite/granite-vision-3.3-2b-embedding** | 2980 | 0.0 | 0.4 | 0.6 | 0.3 | 0.0 | 0.26 | 58.1 |
 
 ## Installation
 
