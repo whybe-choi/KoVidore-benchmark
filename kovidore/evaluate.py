@@ -118,27 +118,16 @@ def _load_local_data(subset_name: str, splits: List[str] = ["test"]):
                 corpus_df = pd.read_csv(corpus_file)
                 logger.info(f"Loaded corpus CSV with {len(corpus_df)} rows")
 
-                # Create generator with direct image loading
+                # Create generator with image paths (using datasets.Image feature type)
                 def corpus_generator():
-                    for _, row in tqdm(corpus_df.iterrows(), total=len(corpus_df), desc=f"Loading corpus images for {split}"):
+                    for _, row in tqdm(corpus_df.iterrows(), total=len(corpus_df), desc=f"Processing corpus for {split}"):
                         corpus_id = str(row["corpus-id"])
                         image_path_str = row.get("image_path", "")
-
-                        # Load image directly in generator
-                        image = None
-                        if image_path_str and Path(image_path_str).exists():
-                            try:
-                                from PIL import Image
-                                with Image.open(image_path_str) as img:
-                                    image = img.convert("RGB").copy()
-                            except Exception as e:
-                                logger.warning(f"Failed to load image {image_path_str}: {e}")
-                                image = None
 
                         yield {
                             "id": f"corpus-{split}-{corpus_id}",
                             "text": None,
-                            "image": image,
+                            "image": image_path_str if image_path_str and Path(image_path_str).exists() else None,
                             "modality": "image"
                         }
 
@@ -149,7 +138,14 @@ def _load_local_data(subset_name: str, splits: List[str] = ["test"]):
                 raise
         else:
             logger.warning(f"Corpus file not found: {corpus_file}")
-        corpus[split] = Dataset.from_generator(corpus_generator)
+        from datasets import Features, Value, Image
+        features = Features({
+            "id": Value("string"),
+            "text": Value("string"),
+            "image": Image(),
+            "modality": Value("string")
+        })
+        corpus[split] = Dataset.from_generator(corpus_generator, features=features)
         
         # Load qrels (relevance judgments)
         qrels_file = data_dir / "qrels.csv"
