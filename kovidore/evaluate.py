@@ -178,7 +178,7 @@ def _load_local_data(subset_name: str, splits: List[str] = ["test"]):
         else:
             logger.warning(f"Qrels file not found: {qrels_file}")
     
-    logger.info(f"Loaded {subset_name}: {len(query_data)} queries, {len(corpus_data)} documents")
+    logger.info(f"Loaded {subset_name} successfully")
     return corpus, queries, relevant_docs
 
 
