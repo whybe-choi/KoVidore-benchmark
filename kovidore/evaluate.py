@@ -161,15 +161,18 @@ def _load_local_data(subset_name: str, splits: List[str] = ["test"]):
             try:
                 qrels_df = pd.read_csv(qrels_file)
                 logger.info(f"Loaded qrels CSV with {len(qrels_df)} rows")
-                for _, row in qrels_df.iterrows():
-                    query_id = f"query-{split}-{row['query-id']}"
-                    corpus_id = f"corpus-{split}-{row['corpus-id']}"
-                    score = int(row["score"])
-                    
-                    # Add to relevant_docs
-                    if query_id not in relevant_docs[split]:
-                        relevant_docs[split][query_id] = {}
-                    relevant_docs[split][query_id][corpus_id] = score
+
+                query_ids = qrels_df['query-id'].apply(lambda x: f"query-{split}-{x}")
+                corpus_ids = qrels_df['corpus-id'].apply(lambda x: f"corpus-{split}-{x}")
+                scores = qrels_df['score'].astype(int)
+
+                from collections import defaultdict
+                temp_docs = defaultdict(dict)
+
+                for qid, cid, score in zip(query_ids, corpus_ids, scores):
+                    temp_docs[qid][cid] = score
+
+                relevant_docs[split] = dict(temp_docs)
                 logger.info(f"Created {len(relevant_docs[split])} qrels entries for split {split}")
             except Exception as e:
                 logger.error(f"Failed to read qrels file {qrels_file}: {e}")
