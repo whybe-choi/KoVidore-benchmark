@@ -18,11 +18,13 @@ dependencies = [
     "sentence-transformers>=5.1.0",
     "pandas>=2.0.0",
     "pillow>=10.0.0",
+    "tqdm>=4.0.0",
     "flash-attn>=2.8.3",
 ]
 
 [tool.setuptools]
 packages = ["kovidore"]
+
 
 [tool.uv.sources]
 colpali-engine = { git = "https://github.com/illuin-tech/colpali" }
