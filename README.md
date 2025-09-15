@@ -21,19 +21,25 @@ The benchmark encompasses 5 distinct tasks, each targeting different types of vi
 
 ## Performance Leaderboard
 
-The following table shows NDCG@5 performance across all KoVidore tasks:
+The following table shows performance across all KoVidore tasks (main scores as percentages):
 
-| Model | Size (M) | MIR | VQA | Slide | Office | FinOCR | ViDoRe v2 (English) |
-|-------|----------|-----|-----|-------|--------|--------|--------|
-| **CLIP-ViT-bigG-14** | 2540 | 0.02015 | 0.0561 | 0.12331 | 0.03929 | 0 | 17.6 |
-| **Nomic Embed Multimodal 3B** | 3000 | 0.68499 | 0.84348 | 0.80148 | 0.85679 | 0.87196 | TBA |
-| **ColPali v1.3** | 2920 | 0.18125 | 0.36716 | 0.55297 | 0.25889 | 0.37437 | 54.2 |
-| **ColQwen2 v1.0** | 2540 | 0.53614 | 0.75765 | 0.74257 | 0.66598 | 0.67542 | TBA |
-| **ColQwen2.5 v0.2** | 3000 | 0.6028 | 0.8095 | 0.79074 | 0.76099 | 0.7472 | TBA |
-| **SigLIP Large 384** | 878 | 0.03186 | 0.07397 | 0.19783 | 0.053 | 0.00975 | TBA |
-| **Jina Embeddings v4** | 3800 | 0.71824 | 0.86245 | TBA | TBA | 0.88922 | TBA |
+| Model | Model Size | FinOCR | MIR | Office | Slide | VQA | Average | ViDoRe V2 (Eng) |
+|-------|------------|--------|-----|--------|-------|-----|---------|------------------|
+| **colnomic-embed-multimodal-3b** | 3000 | 82.2 | 70.7 | 86.3 | 78.4 | 84.4 | 80.4 | 55.5 |
+| **colqwen2.5-v0.2** | 3000 | 67.3 | 62.5 | 75.3 | 78.0 | 81.0 | 72.8 | 59.3 |
+| **colqwen2-v1.0** | 2210 | 66.3 | 57.4 | 68.7 | 73.9 | 75.5 | 68.4 | 55.0 |
+| **colpali-v1.2** | 2920 | 43.8 | 20.2 | 28.4 | 51.2 | 36.8 | 36.1 | 50.7 |
+| **colpali-v1.3** | 2920 | 42.6 | 18.8 | 26.4 | 55.3 | 36.6 | 35.9 | 54.2 |
+| **colpali-v1.1** | 2920 | 38.3 | 19.0 | 25.3 | 48.6 | 30.0 | 32.2 | 47.2 |
+| **colSmol-500M** | 500 | 50.9 | 4.7 | 9.7 | 16.1 | 7.4 | 17.8 | 43.5 |
+| **colSmol-256M** | 256 | 46.6 | 4.0 | 8.4 | 13.9 | 7.6 | 16.1 | 32.9 |
+| **siglip-so400m-patch14-384** | 878 | 4.0 | 3.9 | 6.3 | 21.3 | 7.3 | 8.6 | 31.4 |
+| **VLM2Vec-Full** | 4150 | 1.4 | 1.6 | 7.2 | 14.9 | 6.8 | 6.4 | 30.1 |
+| **CLIP-ViT-bigG-14-laion2B-39B-b160k** | 2540 | 0.5 | 1.9 | 3.7 | 12.5 | 5.6 | 4.8 | 17.6 |
+| **clip-vit-base-patch16** | 151 | 0.3 | 0.6 | 0.0 | 5.9 | 3.3 | 2.5 | 8.3 |
+| **granite-vision-3.3-2b-embedding** | 2980 | 0.0 | 0.4 | 0.0 | 0.0 | 0.0 | 0.4 | 58.1 |
 
-*TBA: To Be Announced - Results will be updated as evaluations are completed.*
+*Performance scores are measured using the main evaluation metric for each task. Model sizes to be announced.*
 
 ## Installation
 
