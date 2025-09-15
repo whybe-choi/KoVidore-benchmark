@@ -5,6 +5,10 @@ from typing import Dict, List, Any, Optional, Tuple
 from pathlib import Path
 import pandas as pd
 from PIL import Image
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from functools import lru_cache
+import threading
+from tqdm import tqdm
 
 from mteb import MTEB
 from mteb.abstasks.Image.AbsTaskAny2AnyRetrieval import AbsTaskAny2AnyRetrieval
@@ -12,6 +16,49 @@ from mteb.abstasks.TaskMetadata import TaskMetadata
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
+
+# Global image cache with thread-safe access
+_image_cache = {}
+_cache_lock = threading.Lock()
+
+@lru_cache(maxsize=1000)
+def load_image_cached(image_path: str) -> Optional[Image.Image]:
+    """Load and cache images with thread-safe LRU cache."""
+    try:
+        if not Path(image_path).exists():
+            return None
+
+        with Image.open(image_path) as img:
+            # Convert to RGB if needed and copy to avoid file handle issues
+            if img.mode != 'RGB':
+                img = img.convert('RGB')
+            return img.copy()
+    except Exception as e:
+        logger.warning(f"Failed to load image {image_path}: {e}")
+        return None
+
+def load_images_parallel(image_paths: List[str], max_workers: int = 4) -> Dict[str, Optional[Image.Image]]:
+    """Load multiple images in parallel using ThreadPoolExecutor."""
+    results = {}
+
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        # Submit all image loading tasks
+        future_to_path = {
+            executor.submit(load_image_cached, path): path
+            for path in image_paths if path
+        }
+
+        # Collect results as they complete with progress bar
+        for future in tqdm(as_completed(future_to_path), total=len(future_to_path), desc="Loading images"):
+            path = future_to_path[future]
+            try:
+                image = future.result()
+                results[path] = image
+            except Exception as e:
+                logger.warning(f"Failed to load image {path}: {e}")
+                results[path] = None
+
+    return results
 
 
 def _load_local_data(subset_name: str, splits: List[str] = ["test"]):
@@ -71,20 +118,27 @@ def _load_local_data(subset_name: str, splits: List[str] = ["test"]):
             try:
                 corpus_df = pd.read_csv(corpus_file)
                 logger.info(f"Loaded corpus CSV with {len(corpus_df)} rows")
+
+                # Extract all image paths for parallel loading
+                image_paths = []
+                corpus_rows = []
                 for _, row in corpus_df.iterrows():
                     corpus_id = str(row["corpus-id"])
                     image_path_str = row.get("image_path", "")
-                    
-                    # Load image if path exists
-                    image = None
+
+                    corpus_rows.append((corpus_id, image_path_str))
                     if image_path_str and Path(image_path_str).exists():
-                        try:
-                            with Image.open(image_path_str) as img:
-                                image = img.copy()
-                        except Exception as e:
-                            logger.warning(f"Failed to load image {image_path_str}: {e}")
-                            logger.debug(f"Image loading error traceback:\n{traceback.format_exc()}")
-                    
+                        image_paths.append(image_path_str)
+
+                # Load all images in parallel
+                logger.info(f"Loading {len(image_paths)} images in parallel...")
+                loaded_images = load_images_parallel(image_paths, max_workers=4)
+                logger.info(f"Loaded {len([img for img in loaded_images.values() if img is not None])} images successfully")
+
+                # Create corpus entries with loaded images
+                for corpus_id, image_path_str in corpus_rows:
+                    image = loaded_images.get(image_path_str, None) if image_path_str else None
+
                     corpus_data.append({
                         "id": f"corpus-{split}-{corpus_id}",
                         "text": None,
