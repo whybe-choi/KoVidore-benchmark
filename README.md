@@ -39,8 +39,6 @@ The following table shows performance across all KoVidore tasks (main scores as 
 | **clip-vit-base-patch16** | 151 | 0.3 | 0.6 | 0.0 | 5.9 | 3.3 | 2.5 | 8.3 |
 | **granite-vision-3.3-2b-embedding** | 2980 | 0.0 | 0.4 | 0.0 | 0.0 | 0.0 | 0.4 | 58.1 |
 
-*Performance scores are measured using the main evaluation metric for each task. Model sizes to be announced.*
-
 ## Installation
 
 ```bash
