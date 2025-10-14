@@ -29,7 +29,7 @@ The following table shows performance across all KoVidore tasks (ndcg@5 scores a
 | **nomic-ai/colnomic-embed-multimodal-7b** | 7000 | 81.9 | 67.9 | 85.9 | 87.6 | 87.2 | 82.1 | 60.8 |
 | **vidore/colqwen2.5-v0.2** | 3000 | 67.3 | 62.5 | 75.3 | 78.0 | 81.0 | 72.8 | 59.3 |
 | **vidore/colqwen2-v1.0** | 2210 | 66.3 | 57.4 | 68.7 | 73.9 | 75.5 | 68.4 | 55.0 |
-| **jinaai/jina-embeddings-v4** | 3800 | 88.9 | 73.8 | TBA | TBA | 86.2 | TBA | 57.6 |
+| **jinaai/jina-embeddings-v4** | 3800 | 88.9 | 73.8 | 88.6 | 89.5 | 86.2 | 85.4 | 57.6 |
 | **vidore/colpali-v1.2** | 2920 | 43.8 | 20.2 | 28.4 | 51.2 | 36.8 | 36.1 | 50.7 |
 | **vidore/colpali-v1.3** | 2920 | 42.6 | 18.8 | 26.4 | 55.3 | 36.6 | 35.9 | 54.2 |
 | **vidore/colpali-v1.1** | 2920 | 38.3 | 19.0 | 25.3 | 48.6 | 30.0 | 32.2 | 47.2 |
