@@ -34,7 +34,7 @@ The following table shows performance across all KoVidore tasks (ndcg@5 scores a
 | **vidore/colpali-v1.3** | 2920 | 42.6 | 18.8 | 26.4 | 55.3 | 36.6 | 35.9 | 54.2 |
 | **vidore/colpali-v1.1** | 2920 | 38.3 | 19.0 | 25.3 | 48.6 | 30.0 | 32.2 | 47.2 |
 | **nvidia/llama-nemoretriever-colembed-3b-v1** | 3000 | TBA | TBA | TBA | TBA | TBA | TBA | 63.5 |
-| **nvidia/llama-nemoretriever-colembed-1b-v1** | 1000 | TBA | 28.1 | TBA | TBA | 39.4 | TBA | 62.1 |
+| **nvidia/llama-nemoretriever-colembed-1b-v1** | 1000 | 76.6 | 28.1 | 34.2 | 53.3 | 39.4 | 46.3 | 62.1 |
 | **vidore/colSmol-500M** | 500 | 50.9 | 4.7 | 9.7 | 16.1 | 7.4 | 17.8 | 43.5 |
 | **vidore/colSmol-256M** | 256 | 46.6 | 4.0 | 8.4 | 13.9 | 7.6 | 16.1 | 32.9 |
 | **google/siglip-so400m-patch14-384** | 878 | 4.0 | 3.9 | 6.3 | 21.3 | 7.3 | 8.6 | 31.4 |
